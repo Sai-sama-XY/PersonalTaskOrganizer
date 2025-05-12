@@ -12,7 +12,7 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarHeader,
-} from "/Users/sanch/OneDrive/Desktop/Laravel React Projects/todolist/Frontend/src/components/ui/sidebar";
+} from "./sidebar"
 import { Link, Navigate } from "react-router-dom";
 import { ModeToggle } from "./mode-toggle";
 
