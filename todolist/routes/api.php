@@ -14,9 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
 });
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/fetchTasks/{id}', [TaskController::class, 'fetchTasks']);
     Route::post('/addTasks', [TaskController::class, 'addTasks']);

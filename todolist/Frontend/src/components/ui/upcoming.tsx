@@ -61,7 +61,7 @@ function UpComing() {
                                 </CardHeader>
                                 <CardContent className="flex gap-5 items-center justify-between">
                                     <div>
-                                        {task.description}
+                                        {task.description.slice(0,10)}
                                         {task.is_completed}
                                     </div>
                                     <div>
