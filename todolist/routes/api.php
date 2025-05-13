@@ -10,12 +10,18 @@ use Illuminate\Support\Facades\Route;
 Route::post('/createUser',[UserController::class, 'createUser']);
 Route::post('/loginUser',[UserController::class, 'login']);
 
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 });
+
+// Task CRUD
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/fetchTasks/{id}', [TaskController::class, 'fetchTasks']);
     Route::post('/addTasks', [TaskController::class, 'addTasks']);
 });
+
+

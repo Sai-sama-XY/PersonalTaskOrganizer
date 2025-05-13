@@ -14,7 +14,8 @@ class TaskController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'is_completed' => $request->is_completed,
-            'task_status' => $request->task_status
+            'task_status' => $request->task_status,
+            'priority' => $request->priority
         ]);
 
         return response()->json([
@@ -25,12 +26,18 @@ class TaskController extends Controller
     public function fetchTasks(Request $request, $id)
     {
         $taskstatus = $request->query('task_status');
+        $orderby = $request->query('orderby');
+        $priority = $request->query('priority');
+        
         $tasks = TaskModel::where('user_id', $id)
             ->when($taskstatus, function ($query, $taskstatus) {
                 return $query->where('task_status', $taskstatus);
-            })
-            ->orderBy('created_at', 'desc')
+            }) ->when($priority, function ($query) use ($priority) {
+            return $query->where('priority', $priority);
+        })
+            ->orderBy('created_at', $orderby)
             ->get();
+        
 
         return response()->json($tasks);
     }

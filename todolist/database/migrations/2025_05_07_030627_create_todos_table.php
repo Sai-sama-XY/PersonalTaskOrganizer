@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')
                   ->constrained()
-                  ->onDelete('cascade'); // This enables ON DELETE CASCADE
+                  ->onDelete('cascade'); 
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('is_completed')->default(false);
