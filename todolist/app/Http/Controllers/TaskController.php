@@ -15,7 +15,8 @@ class TaskController extends Controller
             'description' => $request->description,
             'is_completed' => $request->is_completed,
             'task_status' => $request->task_status,
-            'priority' => $request->priority
+            'priority' => $request->priority,
+            'deadline'=>$request->deadline
         ]);
 
         return response()->json([

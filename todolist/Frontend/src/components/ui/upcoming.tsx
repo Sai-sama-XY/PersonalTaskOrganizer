@@ -4,12 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "./card";
 import axiosClient from "@/axiosClient";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./dialog";
+import { Input } from "./input";
+import { Textarea } from "./textarea";
+import { Label } from "./label";
 
 function UpComing() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
 
-  type Task = {
+  interface Task {
     id: number | null;
     user_id: number;
     title: string;
@@ -18,10 +29,10 @@ function UpComing() {
     is_completed: number;
     orderby: string;
     priority: string;
-  };
+  }
 
   const [tasks, setTasks] = useState<Task[]>([]);
-
+  const [selectedRow, setSelectedRow] = useState<Task|null>(null);
   const [listItem, setListItems] = useState<Task>({
     id: null,
     user_id: userId,
@@ -36,14 +47,15 @@ function UpComing() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
- const fetchTasks = async () => {
+
+  const fetchTasks = async () => {
     try {
       setLoading(true);
       const response = await axiosClient.get(`/fetchTasks/${userId}`, {
         params: {
           task_status: activeTab !== "ALL" ? activeTab : null,
           orderby: _orderby ? "asc" : "desc",
-          priority: listItem.priority
+          priority: listItem.priority,
         },
       });
       setTasks(response.data);
@@ -85,9 +97,33 @@ function UpComing() {
                       {task.description.slice(0, 10)}
                       {task.is_completed}
                     </div>
-                    <div>
-                      <Button variant="ghost">View</Button>
-                    </div>
+                    <Dialog>
+                      <DialogTrigger>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedRow(task);
+                          }}
+                        >
+                          View
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>View Task</DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription className="flex flex-col gap-2">
+                          <Label htmlFor="tasktitle">Task Title</Label>
+                          <Input id="tasktitle"value={selectedRow?.title.toUpperCase()} readOnly/>
+                          <Label htmlFor="taskdesc">Details</Label>
+                          <Textarea id="taskdesc"value={selectedRow?.description} readOnly/>
+                          <Label htmlFor="taskstatus">Status</Label>
+                          <Input id="taskstatus" value={selectedRow?.task_status}/>
+                          <Label htmlFor="taskprio">Priority</Label>
+                          <Input id="taskprio"value={selectedRow?.priority.toUpperCase()}/>
+                        </DialogDescription>
+                      </DialogContent>
+                    </Dialog>
                   </CardContent>
                 </Card>
               </li>

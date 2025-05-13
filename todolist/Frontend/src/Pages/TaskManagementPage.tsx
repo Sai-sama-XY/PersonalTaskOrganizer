@@ -27,14 +27,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpDownIcon, PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
 
 function TaskManagementPage() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
   type priority = "low" | "medium" | "high";
-  
+
   interface Task {
-    id: null;
+    id: number|null;
     user_id: number;
     title: string;
     description: string;
@@ -42,11 +44,13 @@ function TaskManagementPage() {
     is_completed: number;
     orderby: "asc" | "desc";
     priority: priority;
+    deadline: string|null
   }
   const [tasks, setTasks] = useState<Task[]>([]);
   const filteredTasks = tasks.slice(0, 10);
   const [loading, setLoading] = useState(false);
-  const [_priority, setPriority] = useState('low')
+  const [_priority, setPriority] = useState("low");
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [listItem, setListItems] = useState<Task>({
     id: null,
     user_id: userId,
@@ -56,6 +60,7 @@ function TaskManagementPage() {
     task_status: "IN PROGRESS",
     orderby: "asc",
     priority: "low",
+    deadline: ""
   });
 
   const handleOrder = () => {
@@ -82,7 +87,8 @@ function TaskManagementPage() {
   };
 
   const addTasks = async () => {
-    const data = {...listItem, priority:_priority};
+    const formattedDate = date?.toISOString().slice(0, 10); 
+    const data = { ...listItem, priority: _priority, deadline: formattedDate };
     console.log(data);
     try {
       const response = await axiosClient.post("/addTasks", data);
@@ -106,6 +112,7 @@ function TaskManagementPage() {
     "STATUS",
     "PRIORITY",
     "ACTIONS",
+    "DEADLINE"
   ];
   const TASK_STATUS = ["COMPLETED", "IN PROGRESS", "INCOMPLETE"];
   const PRIORITY = ["low", "medium", "high"];
@@ -122,65 +129,86 @@ function TaskManagementPage() {
               <DialogHeader className="flex gap-5">
                 <DialogTitle>Add New Task</DialogTitle>
                 <DialogDescription className="flex flex-col  gap-5">
-                  <Input
-                    type="text"
-                    placeholder="Title"
-                    onChange={(e) =>
-                      setListItems({ ...listItem, title: e.target.value })
-                    }
-                  ></Input>
-                  <Textarea
-                    placeholder="Description"
-                    className="h-48"
-                    onChange={(e) =>
-                      setListItems({ ...listItem, description: e.target.value })
-                    }
-                  ></Textarea>
-                  <Select
-                    defaultValue="IN PROGRESS"
-                    onValueChange={(value) =>
-                      setListItems({ ...listItem, task_status: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Task Status</SelectLabel>
-                        {TASK_STATUS.map((item) => {
-                          return (
-                            <SelectItem key={item} value={item}>
-                              {item}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Title"
+                      onChange={(e) =>
+                        setListItems({ ...listItem, title: e.target.value })
+                      }
+                    ></Input>
+                    <Textarea
+                      placeholder="Description"
+                      className="h-48"
+                      onChange={(e) =>
+                        setListItems({
+                          ...listItem,
+                          description: e.target.value,
+                        })
+                      }
+                    ></Textarea>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <div className="flex flex-col gap-2">
+                      <Label>Select Date</Label>
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        className="rounded-md border w-fit "
+                      />
+                    </div>
+                    
+                    <div
+                      className="flex flex-col gap-5 items-start justify-start
+                    h-full"
+                    >
+                      <Label>Select Status and Priority</Label>
+                      <Select
+                        defaultValue="IN PROGRESS"
+                        onValueChange={(value) =>
+                          setListItems({ ...listItem, task_status: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Task Status</SelectLabel>
+                            {TASK_STATUS.map((item) => {
+                              return (
+                                <SelectItem key={item} value={item}>
+                                  {item}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
 
-                  <Select
-                    defaultValue="low"
-                    onValueChange={(value) =>
-                      setPriority(value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Task Priority</SelectLabel>
-                        {PRIORITY.map((item) => {
-                          return (
-                            <SelectItem key={item} value={item}>
-                              {item.toUpperCase()}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                      <Select
+                        defaultValue="low"
+                        onValueChange={(value) => setPriority(value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Task Priority</SelectLabel>
+                            {PRIORITY.map((item) => {
+                              return (
+                                <SelectItem key={item} value={item}>
+                                  {item.toUpperCase()}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -213,7 +241,7 @@ function TaskManagementPage() {
             <Select
               defaultValue="low"
               onValueChange={(value) =>
-                setListItems({ ...listItem, priority: value as priority})
+                setListItems({ ...listItem, priority: value as priority })
               }
             >
               <SelectTrigger>
@@ -258,15 +286,11 @@ function TaskManagementPage() {
                       {task.task_status === null ? (
                         <>NO STATUS</>
                       ) : (
-                        <Badge
-                          
-                          variant="outline"
-                        >
-                          {task.task_status}
-                        </Badge>
+                        <Badge variant="outline">{task.task_status}</Badge>
                       )}
                     </td>
                     <td>{task.priority.toUpperCase()}</td>
+                    <td>{task.deadline?task.deadline.slice(0,10):"No Deadline"}</td>
                     <td className="flex items-center justify-center">
                       <Button variant="ghost">
                         <PencilIcon />

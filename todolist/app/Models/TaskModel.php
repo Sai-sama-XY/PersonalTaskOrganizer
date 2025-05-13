@@ -13,5 +13,5 @@ class TaskModel extends Model
 }
 
     protected $table = 'todos';
-    protected $fillable = ['user_id','title','description','is_completed','task_status','priority'];
+    protected $fillable = ['user_id','title','description','is_completed','task_status','priority','deadline'];
 }
