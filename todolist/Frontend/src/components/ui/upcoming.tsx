@@ -58,7 +58,7 @@ function UpComing() {
           priority: listItem.priority,
         },
       });
-      setTasks(response.data);
+      setTasks(response.data.data);
     } catch (e) {
       console.error(e);
     } finally {

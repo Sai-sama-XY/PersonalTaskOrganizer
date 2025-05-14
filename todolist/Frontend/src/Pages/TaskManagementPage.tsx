@@ -29,14 +29,23 @@ import { ArrowUpDownIcon, PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 function TaskManagementPage() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
-  type priority = "low" | "medium" | "high";
+  type priority = "all" | "low" | "medium" | "high";
 
   interface Task {
-    id: number|null;
+    id: number | null;
     user_id: number;
     title: string;
     description: string;
@@ -44,13 +53,18 @@ function TaskManagementPage() {
     is_completed: number;
     orderby: "asc" | "desc";
     priority: priority;
-    deadline: string|null
+    deadline: string | null;
   }
   const [tasks, setTasks] = useState<Task[]>([]);
-  const filteredTasks = tasks.slice(0, 10);
   const [loading, setLoading] = useState(false);
   const [_priority, setPriority] = useState("low");
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [pagination, setPagination] = useState({
+    perPage: 10,
+    page: 1,
+    total: 0,
+    lastPage: 1,
+  });
   const [listItem, setListItems] = useState<Task>({
     id: null,
     user_id: userId,
@@ -59,8 +73,8 @@ function TaskManagementPage() {
     is_completed: 0,
     task_status: "IN PROGRESS",
     orderby: "asc",
-    priority: "low",
-    deadline: ""
+    priority: "all",
+    deadline: "",
   });
 
   const handleOrder = () => {
@@ -76,9 +90,18 @@ function TaskManagementPage() {
           task_status: activeTab !== "ALL" ? activeTab : null,
           orderby: _orderby ? "asc" : "desc",
           priority: listItem.priority,
+          perPage: pagination.perPage,
+          page: pagination.page,
         },
       });
-      setTasks(response.data);
+      setTasks(response.data.data);
+      const newPagination = {
+        page: response.data.current_page,
+        perPage: response.data.per_page,
+        total: response.data.total, // optional if you want to render page numbers
+        lastPage: response.data.last_page,
+      };
+      setPagination(newPagination);
     } catch (e) {
       console.error(e);
     } finally {
@@ -87,8 +110,12 @@ function TaskManagementPage() {
   };
 
   const addTasks = async () => {
-    const formattedDate = date?.toISOString().slice(0, 10); 
-    const data = { ...listItem, priority: _priority, deadline: formattedDate };
+    const formattedDate = date?.toISOString().slice(0, 10);
+    const data = {
+      ...listItem,
+      priority: _priority,
+      deadline: formattedDate,
+    };
     console.log(data);
     try {
       const response = await axiosClient.post("/addTasks", data);
@@ -100,22 +127,23 @@ function TaskManagementPage() {
       console.error("Error Adding Task", error);
     } finally {
       setListItems({ ...listItem, task_status: "IN PROGRESS" });
+      setDate(new Date());
     }
   };
   useEffect(() => {
     fetchTasks();
-  }, [activeTab, _orderby, listItem.priority]);
+  }, [activeTab, _orderby, listItem.priority, pagination.page]);
   const TABLE_HEAD = [
     "TASK #",
     "TITLE",
     "DESCRIPTION",
     "STATUS",
     "PRIORITY",
+    "DEADLINE",
     "ACTIONS",
-    "DEADLINE"
   ];
   const TASK_STATUS = ["COMPLETED", "IN PROGRESS", "INCOMPLETE"];
-  const PRIORITY = ["low", "medium", "high"];
+  const PRIORITY = ["all", "low", "medium", "high"];
   return (
     <Card>
       <CardHeader>
@@ -158,7 +186,7 @@ function TaskManagementPage() {
                         className="rounded-md border w-fit "
                       />
                     </div>
-                    
+
                     <div
                       className="flex flex-col gap-5 items-start justify-start
                     h-full"
@@ -239,7 +267,7 @@ function TaskManagementPage() {
             </Button>
 
             <Select
-              defaultValue="low"
+              defaultValue="all"
               onValueChange={(value) =>
                 setListItems({ ...listItem, priority: value as priority })
               }
@@ -276,7 +304,7 @@ function TaskManagementPage() {
               </tr>
             </thead>
             <tbody className="border">
-              {filteredTasks.map((task) => {
+              {tasks.map((task) => {
                 return (
                   <tr key={task.id} className="h-16">
                     <td>{task.id}</td>
@@ -290,7 +318,11 @@ function TaskManagementPage() {
                       )}
                     </td>
                     <td>{task.priority.toUpperCase()}</td>
-                    <td>{task.deadline?task.deadline.slice(0,10):"No Deadline"}</td>
+                    <td>
+                      {task.deadline
+                        ? task.deadline.slice(0, 10)
+                        : "No Deadline"}
+                    </td>
                     <td className="flex items-center justify-center">
                       <Button variant="ghost">
                         <PencilIcon />
@@ -302,6 +334,31 @@ function TaskManagementPage() {
             </tbody>
           </table>
         )}
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() =>
+                  pagination.page > 1 &&
+                  setPagination({ ...pagination, page: pagination.page - 1 })
+                }
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">{pagination.page}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() =>
+                  setPagination({ ...pagination, page: pagination.page + 1 })
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </CardContent>
     </Card>
   );
