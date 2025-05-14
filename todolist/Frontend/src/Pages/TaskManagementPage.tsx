@@ -345,16 +345,30 @@ function TaskManagementPage() {
               />
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink href="#">{pagination.page}</PaginationLink>
+              <PaginationLink >{pagination.page}</PaginationLink>
+            </PaginationItem>
+             <PaginationItem>
+              {
+              pagination.page+1 > pagination.lastPage?<></>:<PaginationLink onClick={()=>setPagination({...pagination, page:pagination.page+1 })}>{pagination.page+1}</PaginationLink>
+              }
+            </PaginationItem>
+             <PaginationItem>
+              {
+              pagination.page+2 > pagination.lastPage?<></>:<PaginationLink onClick={()=>setPagination({...pagination, page:pagination.page+2 })}>{pagination.page+2}</PaginationLink>
+              }
             </PaginationItem>
             <PaginationItem>
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
               <PaginationNext
-                onClick={() =>
-                  setPagination({ ...pagination, page: pagination.page + 1 })
-                }
+                onClick={() =>{
+                  if (pagination.page < pagination.lastPage){
+                  setPagination({ ...pagination, page: pagination.page + 1 });
+                  }
+                  }
+            }
+                
               />
             </PaginationItem>
           </PaginationContent>
