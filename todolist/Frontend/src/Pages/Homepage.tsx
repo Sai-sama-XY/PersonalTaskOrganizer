@@ -6,7 +6,7 @@ function Homepage() {
   return (
     <div className="flex flex-row gap-3">
       <div className="grow-2 flex flex-col gap-5">
-        <div>
+    <div>
           <DateProg />
         </div>
         <div>
