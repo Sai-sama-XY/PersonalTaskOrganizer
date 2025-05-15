@@ -25,7 +25,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDownIcon, PencilIcon } from "lucide-react";
+import { ArrowUpDownIcon, PencilIcon, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -55,6 +55,7 @@ function TaskManagementPage() {
     priority: priority;
     deadline: string | null;
   }
+  const [search, setSearch] = useState<string>("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [_priority, setPriority] = useState("low");
@@ -98,7 +99,7 @@ function TaskManagementPage() {
       const newPagination = {
         page: response.data.current_page,
         perPage: response.data.per_page,
-        total: response.data.total, // optional if you want to render page numbers
+        total: response.data.total, 
         lastPage: response.data.last_page,
       };
       setPagination(newPagination);
@@ -261,7 +262,11 @@ function TaskManagementPage() {
               <TabsTrigger value="COMPLETED">Done</TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            
+            <Input placeholder="Search" onChange={(e)=>setSearch(e.target.value)}></Input>
+            <Search></Search>
+            
             <Button variant="outline" onClick={handleOrder}>
               <ArrowUpDownIcon></ArrowUpDownIcon>
             </Button>
@@ -309,7 +314,7 @@ function TaskManagementPage() {
                   <tr key={task.id} className="h-16">
                     <td>{task.id}</td>
                     <td>{task.title}</td>
-                    <td>{task.description.slice(0, 10)}</td>
+                    <td>{task.description?task.description.slice(0, 10):"No Description"}</td>
                     <td>
                       {task.task_status === null ? (
                         <>NO STATUS</>
@@ -323,7 +328,7 @@ function TaskManagementPage() {
                         ? task.deadline.slice(0, 10)
                         : "No Deadline"}
                     </td>
-                    <td className="flex items-center justify-center">
+                    <td>
                       <Button variant="ghost">
                         <PencilIcon />
                       </Button>
