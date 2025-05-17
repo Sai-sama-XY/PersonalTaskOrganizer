@@ -24,6 +24,18 @@ class TaskController extends Controller
             'data' => $request
         ], 200);
     }
+
+    public function updateTasks(Request $request, $id, $userId){
+        TaskModel::update([
+            'user_id' => $request->user_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'is_completed' => $request->is_completed,
+            'task_status' => $request->task_status,
+            'priority' => $request->priority,
+            'deadline' => $request->deadline
+        ]);
+    }
     public function fetchTasks(Request $request, $id)
     {
         $taskstatus = $request->query('task_status');

@@ -84,12 +84,15 @@ function TaskManagementPage() {
     setOrderBy(!_orderby);
   };
 
-  const handleSearch = (e:any) => {
-    setPagination({...pagination, page:1})
-    setSearch(e.target.value)
-  }
+  const handleSearch = (e: any) => {
+    setPagination({ ...pagination, page: 1 });
+    setSearch(e.target.value);
+  };
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
+
+
+{/*CRUD Functions*/}
   const fetchTasks = async () => {
     try {
       setLoading(true);
@@ -100,7 +103,7 @@ function TaskManagementPage() {
           priority: listItem.priority,
           perPage: pagination.perPage,
           page: pagination.page,
-          search: search
+          search: search,
         },
       });
       setTasks(response.data.data);
@@ -139,10 +142,25 @@ function TaskManagementPage() {
       setDate(new Date());
     }
   };
+
+  const updateTasks = async() => {
+    const response = await axiosClient.put('',)
+  }
+
+  //Upate Function
+  const onLoadUpdate = async () => {
+    fetchTasks();
+    const today = new Date();
+    const formattedToday = today.toISOString().slice(0, 10);
+
+    tasks.forEach((element) => {
+      if (element.deadline < formattedToday) {
+      }
+    });
+  };
   useEffect(() => {
     fetchTasks();
   }, [activeTab, _orderby, listItem.priority, pagination.page, debounceSearch]);
-
 
   const TABLE_HEAD = [
     "TASK #",
