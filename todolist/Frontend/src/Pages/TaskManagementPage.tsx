@@ -25,10 +25,11 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDownIcon, PencilIcon, Search } from "lucide-react";
+import { ArrowUpDownIcon, PencilIcon, Search, SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import { useDebounce } from "@/hooks/debounce";
 import {
   Pagination,
   PaginationContent,
@@ -56,6 +57,7 @@ function TaskManagementPage() {
     deadline: string | null;
   }
   const [search, setSearch] = useState<string>("");
+  const debounceSearch = useDebounce(search);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [_priority, setPriority] = useState("low");
@@ -81,6 +83,11 @@ function TaskManagementPage() {
   const handleOrder = () => {
     setOrderBy(!_orderby);
   };
+
+  const handleSearch = (e:any) => {
+    setPagination({...pagination, page:1})
+    setSearch(e.target.value)
+  }
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
   const fetchTasks = async () => {
@@ -93,13 +100,14 @@ function TaskManagementPage() {
           priority: listItem.priority,
           perPage: pagination.perPage,
           page: pagination.page,
+          search: search
         },
       });
       setTasks(response.data.data);
       const newPagination = {
         page: response.data.current_page,
         perPage: response.data.per_page,
-        total: response.data.total, 
+        total: response.data.total,
         lastPage: response.data.last_page,
       };
       setPagination(newPagination);
@@ -133,7 +141,9 @@ function TaskManagementPage() {
   };
   useEffect(() => {
     fetchTasks();
-  }, [activeTab, _orderby, listItem.priority, pagination.page]);
+  }, [activeTab, _orderby, listItem.priority, pagination.page, debounceSearch]);
+
+
   const TABLE_HEAD = [
     "TASK #",
     "TITLE",
@@ -263,10 +273,12 @@ function TaskManagementPage() {
             </TabsList>
           </Tabs>
           <div className="flex items-center gap-2">
-            
-            <Input placeholder="Search" onChange={(e)=>setSearch(e.target.value)}></Input>
+            <Input
+              placeholder="Search"
+              onChange={(e) => handleSearch(e)}
+            ></Input>
             <Search></Search>
-            
+
             <Button variant="outline" onClick={handleOrder}>
               <ArrowUpDownIcon></ArrowUpDownIcon>
             </Button>
@@ -314,7 +326,11 @@ function TaskManagementPage() {
                   <tr key={task.id} className="h-16">
                     <td>{task.id}</td>
                     <td>{task.title}</td>
-                    <td>{task.description?task.description.slice(0, 10):"No Description"}</td>
+                    <td>
+                      {task.description
+                        ? task.description.slice(0, 10)
+                        : "No Description"}
+                    </td>
                     <td>
                       {task.task_status === null ? (
                         <>NO STATUS</>
@@ -350,30 +366,44 @@ function TaskManagementPage() {
               />
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink >{pagination.page}</PaginationLink>
+              <PaginationLink>{pagination.page}</PaginationLink>
             </PaginationItem>
-             <PaginationItem>
-              {
-              pagination.page+1 > pagination.lastPage?<></>:<PaginationLink onClick={()=>setPagination({...pagination, page:pagination.page+1 })}>{pagination.page+1}</PaginationLink>
-              }
+            <PaginationItem>
+              {pagination.page + 1 > pagination.lastPage ? (
+                <></>
+              ) : (
+                <PaginationLink
+                  onClick={() =>
+                    setPagination({ ...pagination, page: pagination.page + 1 })
+                  }
+                >
+                  {pagination.page + 1}
+                </PaginationLink>
+              )}
             </PaginationItem>
-             <PaginationItem>
-              {
-              pagination.page+2 > pagination.lastPage?<></>:<PaginationLink onClick={()=>setPagination({...pagination, page:pagination.page+2 })}>{pagination.page+2}</PaginationLink>
-              }
+            <PaginationItem>
+              {pagination.page + 2 > pagination.lastPage ? (
+                <></>
+              ) : (
+                <PaginationLink
+                  onClick={() =>
+                    setPagination({ ...pagination, page: pagination.page + 2 })
+                  }
+                >
+                  {pagination.page + 2}
+                </PaginationLink>
+              )}
             </PaginationItem>
             <PaginationItem>
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
               <PaginationNext
-                onClick={() =>{
-                  if (pagination.page < pagination.lastPage){
-                  setPagination({ ...pagination, page: pagination.page + 1 });
+                onClick={() => {
+                  if (pagination.page < pagination.lastPage) {
+                    setPagination({ ...pagination, page: pagination.page + 1 });
                   }
-                  }
-            }
-                
+                }}
               />
             </PaginationItem>
           </PaginationContent>

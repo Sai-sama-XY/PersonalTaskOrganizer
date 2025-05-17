@@ -31,14 +31,20 @@ class TaskController extends Controller
         $priority = $request->query('priority');
         $perPage =  $request->query('perPage');
         $page = $request->query('page');
+        $search = $request->query('search');
 
         $tasks = TaskModel::where('user_id', $id)
             ->when($taskstatus, function ($query, $taskstatus) {
                 return $query->where('task_status', $taskstatus);
             })->when($priority, function ($query) use ($priority) {
-                if($priority !== "all"){
+                if ($priority !== "all") {
                     return $query->where('priority', $priority);
                 }
+            })->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%$search%")
+                        ->orWhere('description', 'like', "%$search%");
+                });
             })
             ->orderBy('created_at', $orderby)
             ->paginate($perPage, ['*'], 'page', $page);
