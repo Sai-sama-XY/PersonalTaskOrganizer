@@ -70,9 +70,9 @@ function UpComing() {
     fetchTasks();
   }, []);
 
-  const visibleTasks = tasks.slice(0, 3);
+  const visibleTasks = tasks?tasks.slice(0, 3):[];
   return (
-    <Card className="min-h-[635px] max-h-[635px] min-w-[250px] max-w-[250px]overflow-auto">
+    <Card className="min-h-[672px] max-h-[700px] min-w-[250px] max-w-[250px]overflow-auto">
       <CardHeader>
         <CardTitle>
           <span className="text-lg ">UPCOMING TASKS</span>
@@ -94,7 +94,7 @@ function UpComing() {
                   </CardHeader>
                   <CardContent className="flex gap-5 items-center justify-between">
                     <div>
-                      {task.description.slice(0, 10)}
+                      {task.description?task.description.slice(0, 10):""}
                       {task.is_completed}
                     </div>
                     <Dialog>

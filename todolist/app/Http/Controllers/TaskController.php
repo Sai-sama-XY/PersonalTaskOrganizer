@@ -25,7 +25,8 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function updateTasks(Request $request, $id, $userId){
+    public function updateTasks(Request $request, $id, $userId)
+    {
         TaskModel::update([
             'user_id' => $request->user_id,
             'title' => $request->title,
@@ -63,5 +64,11 @@ class TaskController extends Controller
 
 
         return response()->json($tasks);
+    }
+
+    public function fetchInProg(Request $request, $id)
+    {
+        $inprog = TaskModel::where('user_id', $id)->where('task_status', "IN PROGRESS")->get();
+        return response()->json($inprog);
     }
 }

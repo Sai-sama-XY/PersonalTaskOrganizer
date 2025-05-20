@@ -154,8 +154,6 @@ function TaskManagementPage() {
     const formattedToday = today.toISOString().slice(0, 10);
 
     tasks.forEach((element) => {
-      if (element.deadline < formattedToday) {
-      }
     });
   };
   useEffect(() => {

@@ -64,7 +64,6 @@ function SidebarApp() {
           <SidebarGroup>
             <div className="flex justify-between">
               <SidebarGroupLabel>TODO LIST</SidebarGroupLabel>
-              <ModeToggle />
             </div>
             <SidebarGroupContent>
               <SidebarMenu className="flex gap-5 mt-5">
