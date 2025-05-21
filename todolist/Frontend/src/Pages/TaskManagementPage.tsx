@@ -339,10 +339,10 @@ function TaskManagementPage() {
               </tr>
             </thead>
             <tbody className="border">
-              {tasks.map((task) => {
+              {tasks.map((task, index) => {
                 return (
                   <tr key={task.id} className="h-16">
-                    <td>{task.id}</td>
+                    <td>{index+1}</td>
                     <td>{task.title}</td>
                     <td>
                       {task.description

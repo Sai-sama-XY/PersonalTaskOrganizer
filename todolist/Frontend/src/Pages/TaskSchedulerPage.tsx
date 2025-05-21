@@ -1,8 +1,15 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import React from 'react'
 
 function TaskSchedulerPage() {
   return (
-    <div>TaskSchedulerPage</div>
+      <Card>
+      <CardHeader>
+        <CardTitle>Task Scheduler</CardTitle>
+      </CardHeader>
+      <CardContent>
+      </CardContent>
+    </Card>
   )
 }
 

@@ -20,10 +20,11 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
 } from "./sidebar";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { ModeToggle } from "./mode-toggle";
 
 function SidebarApp() {
+  const currentLocation = useLocation();
   const items = [
     {
       title: "Home",
@@ -68,7 +69,7 @@ function SidebarApp() {
             <SidebarGroupContent>
               <SidebarMenu className="flex gap-5 mt-5">
                 {items.map((item) => (
-                  <SidebarMenuItem key={item.title} className="h-full">
+                  <SidebarMenuItem key={item.title} className={`h-full rounded ${item.url === currentLocation.pathname? 'bg-gray-700':""} `}>
                     <SidebarMenuButton
                       asChild
                       className="h-10"

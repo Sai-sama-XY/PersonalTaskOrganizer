@@ -15,6 +15,8 @@ import {
 import { Input } from "./input";
 import { Textarea } from "./textarea";
 import { Label } from "./label";
+import { Badge } from "./badge";
+import { motion, AnimatePresence } from "framer-motion";
 
 function UpComing() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -32,7 +34,10 @@ function UpComing() {
   }
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedRow, setSelectedRow] = useState<Task|null>(null);
+  const [selectedRow, setSelectedRow] = useState<Task | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("ALL");
+  const [_orderby, setOrderBy] = useState(true);
   const [listItem, setListItems] = useState<Task>({
     id: null,
     user_id: userId,
@@ -40,13 +45,9 @@ function UpComing() {
     description: "",
     is_completed: 0,
     task_status: "IN PROGRESS",
-    orderby: "desc",
+    orderby: "",
     priority: "low",
   });
-
-  const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("ALL");
-  const [_orderby, setOrderBy] = useState(true);
 
   const fetchTasks = async () => {
     try {
@@ -66,11 +67,22 @@ function UpComing() {
     }
   };
 
+  const moveTask = () => {
+    if (tasks.length > 0) {
+      const updatedTasks = [...tasks];
+      const firstTask = updatedTasks.shift();
+      if (firstTask) {
+        updatedTasks.push(firstTask);
+      }
+      setTasks(updatedTasks);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const visibleTasks = tasks?tasks.slice(0, 3):[];
+  const visibleTasks = tasks ? tasks.slice(0, 3) : [];
   return (
     <Card className="min-h-[672px] max-h-[700px] min-w-[250px] max-w-[250px]overflow-auto">
       <CardHeader>
@@ -83,51 +95,83 @@ function UpComing() {
           <Loading />
         ) : (
           <ul className="flex flex-col gap-5">
-            {visibleTasks.map((task) => (
-              <li key={task.id}>
-                <Card className="flex flex-col gap-10">
-                  <CardHeader className="flex flex-row justify-between items-center">
-                    <span>{task.title}</span>
-                    <Button variant="ghost">
-                      <X />
-                    </Button>
-                  </CardHeader>
-                  <CardContent className="flex gap-5 items-center justify-between">
-                    <div>
-                      {task.description?task.description.slice(0, 10):""}
-                      {task.is_completed}
-                    </div>
-                    <Dialog>
-                      <DialogTrigger>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            setSelectedRow(task);
-                          }}
-                        >
-                          View
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>View Task</DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription className="flex flex-col gap-2">
-                          <Label htmlFor="tasktitle">Task Title</Label>
-                          <Input id="tasktitle"value={selectedRow?.title.toUpperCase()} readOnly/>
-                          <Label htmlFor="taskdesc">Details</Label>
-                          <Textarea id="taskdesc"value={selectedRow?.description} readOnly/>
-                          <Label htmlFor="taskstatus">Status</Label>
-                          <Input id="taskstatus" value={selectedRow?.task_status}/>
-                          <Label htmlFor="taskprio">Priority</Label>
-                          <Input id="taskprio"value={selectedRow?.priority.toUpperCase()}/>
-                        </DialogDescription>
-                      </DialogContent>
-                    </Dialog>
-                  </CardContent>
-                </Card>
-              </li>
-            ))}
+            <AnimatePresence>
+              {visibleTasks.map((task) => (
+                <motion.li
+                  key={task.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Card className="flex flex-col gap-10">
+                    <CardHeader className="flex flex-row justify-between items-center">
+                      <span>{task.title}</span>
+                      <div className="flex gap-2 max-h-5 items-center justify-center ">
+                          {task.is_completed ? (
+                          <Badge className="bg-green-200">Active</Badge>
+                        ) : (
+                          <Badge variant="destructive">Inactive</Badge>
+                        )}
+                          <Button variant="ghost" onClick={moveTask}>
+                        <X />
+                      </Button>
+                     
+                      </div>
+                    
+                    </CardHeader>
+                    <CardContent className="flex gap-5 items-center justify-between">
+                      <div>
+                        {task.description ? task.description.slice(0, 10) : ""}
+                       
+                      </div>
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedRow(task);
+                            }}
+                          >
+                            View
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>View Task</DialogTitle>
+                          </DialogHeader>
+                          <DialogDescription className="flex flex-col gap-2">
+                            <Label htmlFor="tasktitle">Task Title</Label>
+                            <Input
+                              id="tasktitle"
+                              value={selectedRow?.title.toUpperCase()}
+                              readOnly
+                            />
+                            <Label htmlFor="taskdesc">Details</Label>
+                            <Textarea
+                              id="taskdesc"
+                              value={selectedRow?.description}
+                              readOnly
+                            />
+                            <Label htmlFor="taskstatus">Status</Label>
+                            <Input
+                              id="taskstatus"
+                              value={selectedRow?.task_status}
+                            />
+                            <Label htmlFor="taskprio">Priority</Label>
+                            <Input
+                              id="taskprio"
+                              value={selectedRow?.priority.toUpperCase()}
+                            />
+                          </DialogDescription>
+                        </DialogContent>
+                      </Dialog>
+                    </CardContent>
+                  </Card>
+                </motion.li>
+              ))}
+            </AnimatePresence>
           </ul>
         )}
       </CardContent>
