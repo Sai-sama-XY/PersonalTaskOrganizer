@@ -10,20 +10,14 @@ import TaskStatisticsPage from "./TaskStatisticsPage";
 import SettingsPage from "./SettingsPage";
 import { isAuthenticated } from "@/lib/utils/auth";
 import NotFoundPage from "./NotFoundPage";
+import { ProtectedRoute } from "@/lib/utils/ProtectedRoute";
 
 const Router = createBrowserRouter([
     {
         path: "/",
-        element: <DefaultLayout />,
+        element: <ProtectedRoute><DefaultLayout /></ProtectedRoute>,
         children: [
-            {
-                index: true,
-                element: isAuthenticated() ? (
-                    <Navigate to="/homepage" />
-                ) : (
-                    <Navigate to="/login" />
-                ),
-            },
+           
             {
                 path: "homepage",
                 element: <Homepage />,
@@ -56,7 +50,7 @@ const Router = createBrowserRouter([
         children: [
             {
                 path: "register",
-                element: <Register />,
+                element: isAuthenticated()?<Navigate to="/homepage"/>:<Register />,
             },
             {
                 path: "login",

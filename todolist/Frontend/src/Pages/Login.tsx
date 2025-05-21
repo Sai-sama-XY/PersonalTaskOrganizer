@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -63,6 +63,8 @@ function Login() {
                     >
                         Login
                     </Button>
+                    <Label><Link to="/register">Don't have an Account?</Link></Label>
+                    
                 </form>
             </CardContent>
         </Card>

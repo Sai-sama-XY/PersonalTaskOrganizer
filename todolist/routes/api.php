@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/fetchTasks/{id}', [TaskController::class, 'fetchTasks']);
     Route::post('/addTasks', [TaskController::class, 'addTasks']);
     Route::get('/fetchInProg/{id}', [TaskController::class, 'fetchInProg']);
+    Route::get('/progPercent/{id}', [TaskController::class, 'progPercent']);
+    Route::put('/updateTask/{userid}',[TaskController::class, 'updateTasks']);
 });
 
 

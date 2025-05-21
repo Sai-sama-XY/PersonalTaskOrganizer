@@ -25,18 +25,32 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function updateTasks(Request $request, $id, $userId)
-    {
-        TaskModel::update([
-            'user_id' => $request->user_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'is_completed' => $request->is_completed,
-            'task_status' => $request->task_status,
-            'priority' => $request->priority,
-            'deadline' => $request->deadline
-        ]);
+ public function updateTasks(Request $request, $userId)
+{
+    $id = $request->id;
+
+
+    $task = TaskModel::where('id', $id)
+                     ->where('user_id', $userId)
+                     ->first();
+
+    if (!$task) {
+        return response()->json(['message' => 'Task not found'], 404);
     }
+
+
+    $task->update([
+        'title' => $request->title,
+        'description' => $request->description,
+        'is_completed' => $request->is_completed,
+        'task_status' => $request->task_status,
+        'priority' => $request->priority,
+        'deadline' => $request->deadline
+    ]);
+
+    return response()->json(['message' => 'Task updated successfully']);
+}
+
     public function fetchTasks(Request $request, $id)
     {
         $taskstatus = $request->query('task_status');
@@ -71,4 +85,35 @@ class TaskController extends Controller
         $inprog = TaskModel::where('user_id', $id)->where('task_status', "IN PROGRESS")->get();
         return response()->json($inprog);
     }
+
+
+    public function progPercent($id)
+    {
+        $inprog = TaskModel::where('user_id', $id)
+            ->where('task_status', "IN PROGRESS")
+            ->count();
+
+        $total = TaskModel::where('user_id', $id)->count();
+
+        if ($total === 0) {
+            return response()->json([
+                'percent' => 0,
+                'in_progress' => 0,
+                'total' => 0
+            ]);
+        }
+
+        $percent = ($inprog / $total) * 100;
+
+        return response()->json([
+            'percent' => (int) round($percent),
+            'in_progress' => $inprog,
+            'total' => $total
+        ]);
+    }
+
+
+
+
+    
 }

@@ -91,8 +91,9 @@ function TaskManagementPage() {
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
 
-
-{/*CRUD Functions*/}
+  {
+    /*CRUD Functions*/
+  }
   const fetchTasks = async () => {
     try {
       setLoading(true);
@@ -143,9 +144,9 @@ function TaskManagementPage() {
     }
   };
 
-  const updateTasks = async() => {
-    const response = await axiosClient.put('',)
-  }
+  const updateTasks = async () => {
+    const response = await axiosClient.put("");
+  };
 
   //Upate Function
   const onLoadUpdate = async () => {
@@ -153,8 +154,7 @@ function TaskManagementPage() {
     const today = new Date();
     const formattedToday = today.toISOString().slice(0, 10);
 
-    tasks.forEach((element) => {
-    });
+    tasks.forEach((element) => {});
   };
   useEffect(() => {
     fetchTasks();
@@ -184,7 +184,7 @@ function TaskManagementPage() {
               <DialogHeader className="flex gap-5">
                 <DialogTitle>Add New Task</DialogTitle>
                 <DialogDescription className="flex flex-col  gap-5">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 ">
                     <Input
                       type="text"
                       placeholder="Title"
@@ -192,16 +192,18 @@ function TaskManagementPage() {
                         setListItems({ ...listItem, title: e.target.value })
                       }
                     ></Input>
-                    <Textarea
-                      placeholder="Description"
-                      className="h-48"
-                      onChange={(e) =>
-                        setListItems({
-                          ...listItem,
-                          description: e.target.value,
-                        })
-                      }
-                    ></Textarea>
+     
+                      <Textarea
+                        placeholder="Description"
+                          className="h-56"
+                        onChange={(e) =>
+                          setListItems({
+                            ...listItem,
+                            description: e.target.value,
+                          })
+                        }
+                      ></Textarea>
+      
                   </div>
                   <div className="flex gap-2 items-center">
                     <div className="flex flex-col gap-2">
@@ -210,7 +212,7 @@ function TaskManagementPage() {
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="rounded-md border w-fit "
+                        className="rounded-md border w-fit"
                       />
                     </div>
 
