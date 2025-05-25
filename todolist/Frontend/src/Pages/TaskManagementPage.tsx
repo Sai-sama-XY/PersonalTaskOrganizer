@@ -90,7 +90,7 @@ function TaskManagementPage() {
   };
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
-
+  const [updateItem, setUpdatedItem] = useState<Task|any>();
   {
     /*CRUD Functions*/
   }
@@ -144,8 +144,15 @@ function TaskManagementPage() {
     }
   };
 
-  const updateTasks = async () => {
-    const response = await axiosClient.put("");
+const handleUpdate = (item:any) => {
+  updateTasks(item)
+
+}
+  const updateTasks = async (item:Task) => {
+    const updatedItem = {
+
+    }
+    const response = await axiosClient.put(`/updateTasks/${userId}`, {updatedItem});
   };
 
   //Upate Function
