@@ -53,8 +53,8 @@ function TaskManagementPage() {
     task_status: string;
     is_completed: number;
     orderby: "asc" | "desc";
-    priority: priority;
-    deadline: string | null;
+    priority: priority|string;
+    deadline: string | null | undefined;
   }
   const [search, setSearch] = useState<string>("");
   const debounceSearch = useDebounce(search);
@@ -79,7 +79,7 @@ function TaskManagementPage() {
     priority: "all",
     deadline: "",
   });
-
+  
   const handleOrder = () => {
     setOrderBy(!_orderby);
   };
@@ -90,7 +90,8 @@ function TaskManagementPage() {
   };
   const [activeTab, setActiveTab] = useState("ALL");
   const [_orderby, setOrderBy] = useState(true);
-  const [updateItem, setUpdatedItem] = useState<Task|any>();
+  const [updateItem, setUpdatedItem] = useState<Task | any>();
+
   {
     /*CRUD Functions*/
   }
@@ -144,16 +145,34 @@ function TaskManagementPage() {
     }
   };
 
-const handleUpdate = (item:any) => {
-  updateTasks(item)
+ const handleUpdate = (item: Task) => {
+  const formattedDate = date?.toISOString().slice(0, 10);
 
-}
-  const updateTasks = async (item:Task) => {
-    const updatedItem = {
-
-    }
-    const response = await axiosClient.put(`/updateTasks/${userId}`, {updatedItem});
+  const updatedTask: Task = {
+    ...item,
+    title: listItem.title || item.title,
+    description: listItem.description || item.description,
+    task_status: listItem.task_status || item.task_status,
+    priority: _priority || item.priority,
+    deadline: formattedDate || item.deadline,
+    orderby: item.orderby,
+    is_completed: item.is_completed,
+    user_id: item.user_id,
   };
+
+  updateTasks(updatedTask);
+  fetchTasks(); 
+};
+
+ const updateTasks = async (task: Task) => {
+  try {
+    const response = await axiosClient.put(`/updateTask/${userId}`, task);
+    console.log("Task updated:", response.data);
+  } catch (e) {
+    console.error("Error updating task", e);
+  }
+};
+
 
   //Upate Function
   const onLoadUpdate = async () => {
@@ -199,18 +218,17 @@ const handleUpdate = (item:any) => {
                         setListItems({ ...listItem, title: e.target.value })
                       }
                     ></Input>
-     
-                      <Textarea
-                        placeholder="Description"
-                          className="h-56"
-                        onChange={(e) =>
-                          setListItems({
-                            ...listItem,
-                            description: e.target.value,
-                          })
-                        }
-                      ></Textarea>
-      
+
+                    <Textarea
+                      placeholder="Description"
+                      className="h-56"
+                      onChange={(e) =>
+                        setListItems({
+                          ...listItem,
+                          description: e.target.value,
+                        })
+                      }
+                    ></Textarea>
                   </div>
                   <div className="flex gap-2 items-center">
                     <div className="flex flex-col gap-2">
@@ -229,7 +247,7 @@ const handleUpdate = (item:any) => {
                     >
                       <Label>Select Status and Priority</Label>
                       <Select
-                        defaultValue="IN PROGRESS"
+                        defaultValue={"IN PROGRESS"}
                         onValueChange={(value) =>
                           setListItems({ ...listItem, task_status: value })
                         }
@@ -338,18 +356,18 @@ const handleUpdate = (item:any) => {
           <Loading />
         ) : (
           <table className=" w-full min-w-max table-auto  text-center items-center">
-            <thead className="border">
+            <thead>
               <tr className="h-16">
                 {TABLE_HEAD.map((head) => {
                   return <th key={head}>{head}</th>;
                 })}
               </tr>
             </thead>
-            <tbody className="border">
+            <tbody>
               {tasks.map((task, index) => {
                 return (
-                  <tr key={task.id} className="h-16">
-                    <td>{index+1}</td>
+                  <tr key={task.id} className="h-16 border-b-2">
+                    <td>{index + 1}</td>
                     <td>{task.title}</td>
                     <td>
                       {task.description
@@ -360,7 +378,11 @@ const handleUpdate = (item:any) => {
                       {task.task_status === null ? (
                         <>NO STATUS</>
                       ) : (
-                        <Badge variant="outline">{task.task_status}</Badge>
+                        <Badge variant="outline">
+                          {task.task_status === null
+                            ? "COMPLETED"
+                            : task.task_status}
+                        </Badge>
                       )}
                     </td>
                     <td>{task.priority.toUpperCase()}</td>
@@ -370,9 +392,124 @@ const handleUpdate = (item:any) => {
                         : "No Deadline"}
                     </td>
                     <td>
-                      <Button variant="ghost">
-                        <PencilIcon />
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button variant="ghost">
+                            <PencilIcon />
+                          </Button>
+                          
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader className="flex gap-5">
+                            <DialogTitle>Update Task</DialogTitle>
+                            <DialogDescription className="flex flex-col  gap-5">
+                              <div className="flex flex-col gap-2 ">
+                                <Input
+                                  type="text"
+                                  placeholder={task.title}
+                                  onChange={(e) =>
+                                    setListItems({
+                                      ...listItem,
+                                      title: e.target.value,
+                                    })
+                                  }
+                                ></Input>
+
+                                <Textarea
+
+                                  placeholder={task.description}
+                                  className="h-56"
+                                  onChange={(e) =>
+                                    setListItems({
+                                      ...listItem,
+                                      description: e.target.value,
+                                    })
+                                  }
+                                ></Textarea>
+                              </div>
+                              <div className="flex gap-2 items-center">
+                                <div className="flex flex-col gap-2">
+                                  <Label>Select Date</Label>
+                                  <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    className="rounded-md border w-fit"
+                                  />
+                                </div>
+
+                                <div
+                                  className="flex flex-col gap-5 items-start justify-start
+                    h-full"
+                                >
+                                  <Label>Select Status and Priority</Label>
+                                  <Select
+                                    defaultValue={task?.task_status}
+                                    onValueChange={(value) =>
+                                      setListItems({
+                                        ...listItem,
+                                        task_status: value,
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        <SelectLabel>Task Status</SelectLabel>
+                                        {TASK_STATUS.map((item) => {
+                                          return (
+                                            <SelectItem key={item} value={item}>
+                                              {item}
+                                            </SelectItem>
+                                          );
+                                        })}
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
+
+                                  <Select
+                                    defaultValue={task.priority.toLowerCase()}
+                                    onValueChange={(value) =>
+                                      setPriority(value)
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        <SelectLabel>Task Priority</SelectLabel>
+                                        {PRIORITY.map((item) => {
+                                          return (
+                                            <SelectItem key={item} value={item}>
+                                              {item.toUpperCase()}
+                                            </SelectItem>
+                                          );
+                                        })}
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <DialogClose>
+                              <Button variant="outline" className="w-full">
+                                Cancel
+                              </Button>
+                            </DialogClose>
+                            <Button
+                              variant="outline"
+                              onClick={()=>handleUpdate(task)}
+                            >
+                              Save
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </td>
                   </tr>
                 );

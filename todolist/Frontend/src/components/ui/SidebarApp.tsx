@@ -36,11 +36,7 @@ function SidebarApp() {
       url: "/taskmanagement",
       icon: <Edit2Icon />,
     },
-    {
-      title: "Task Scheduler",
-      url: "/taskscheduler",
-      icon: <Calendar />,
-    },
+ 
     {
       title: "Task Statistics",
       url: "/taskstatistics",
