@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PiChart} from '@/components/ui/piechart'
+
 
 
 function TaskStatisticsPage() {
@@ -11,7 +13,9 @@ function TaskStatisticsPage() {
         <CardTitle>Statistics</CardTitle>
       </CardHeader>
       <CardContent>
-
+        <div>
+          <PiChart></PiChart>
+        </div>
       </CardContent>
     </Card>
   )
